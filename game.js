@@ -542,7 +542,7 @@ function init() {
     // Setup Controls
     controls = new PointerLockControls(camera, document.body);
     
-    document.getElementById('instructions').addEventListener('click', function () {
+    document.getElementById('blocker').addEventListener('click', function () {
         if (isGameStarted && !isUpgrading) {
             controls.lock();
         }
