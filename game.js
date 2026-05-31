@@ -33,6 +33,7 @@ let isHost = false;
 let mapGrid = [];
 let fixedSpawnPos = null;
 let lastZombieSpawnTime = 0;
+let lastSyncTime = 0; // Throttle network sync
 let enemyIdCounter = 0;
 
 let sniperRangeBase = 10;
@@ -1679,27 +1680,31 @@ function animate() {
             });
         }
         
-        // PeerJS broadcast pos & enemies
+        // PeerJS broadcast pos & enemies (Throttled to ~15 FPS to prevent network freeze)
         if (peer && connections.length > 0) {
-            const p = controls.getObject().position;
-            const r = camera.rotation;
-            
-            // Broadcast self position
-            connections.forEach(conn => {
-                conn.send({
-                    type: 'pos',
-                    x: p.x, y: p.y, z: p.z,
-                    rx: r.x, ry: r.y, rz: r.z
+            if (time - lastSyncTime > 66) { // 1000ms / 15 = 66ms
+                const p = controls.getObject().position;
+                const r = camera.rotation;
+                
+                // Broadcast self position
+                connections.forEach(conn => {
+                    conn.send({
+                        type: 'pos',
+                        x: p.x, y: p.y, z: p.z,
+                        rx: r.x, ry: r.y, rz: r.z
+                    });
                 });
-            });
-            
-            // If Host, broadcast enemy states
-            if (isHost) {
-                const syncData = enemies.map(e => ({
-                    id: e.id, x: e.mesh.position.x, y: e.mesh.position.y, z: e.mesh.position.z, 
-                    hp: e.hp, isFriendly: e.isFriendly, type: e.type
-                }));
-                connections.forEach(conn => conn.send({ type: 'enemies_sync', enemies: syncData }));
+                
+                // If Host, broadcast enemy states
+                if (isHost) {
+                    const syncData = enemies.map(e => ({
+                        id: e.id, x: e.mesh.position.x, y: e.mesh.position.y, z: e.mesh.position.z, 
+                        hp: e.hp, isFriendly: e.isFriendly, type: e.type
+                    }));
+                    connections.forEach(conn => conn.send({ type: 'enemies_sync', enemies: syncData }));
+                }
+                
+                lastSyncTime = time;
             }
         }
     }
