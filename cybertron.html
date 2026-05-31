@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>变形金刚：塞伯坦格斗</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="game-wrapper">
+        <h1 class="game-title">变形金刚：塞伯坦之战</h1>
+        <!-- 游戏容器 -->
+        <div id="game-container">
+            <!-- UI层 -->
+            <div id="ui-layer">
+                <!-- 玩家1血条 (擎天柱) -->
+                <div class="health-container" id="player1-health-container">
+                    <div class="health-bar-bg"></div>
+                    <div class="health-bar" id="player1-health"></div>
+                    <div class="player-name">擎天柱 (10 HP)</div>
+                </div>
+                
+                <!-- 计时器 -->
+                <div id="timer">60</div>
+                
+                <!-- 玩家2血条 (霸天虎/天灾) -->
+                <div class="health-container" id="player2-health-container">
+                    <div class="health-bar-bg"></div>
+                    <div class="health-bar" id="player2-health"></div>
+                    <div class="player-name">天灾 (10 HP)</div>
+                </div>
+                
+                <!-- 结果展示 -->
+                <div id="result-display"></div>
+            </div>
+            
+            <!-- 游戏画布 -->
+            <canvas id="gameCanvas"></canvas>
+        </div>
+
+        <!-- 操作说明 -->
+        <div id="instructions">
+            <div class="instruction-block">
+                <h3>🟦 擎天柱 操作说明</h3>
+                <p><strong>⬅️ ➡️</strong>: 左右移动 | <strong>⬆️</strong>: 跳跃</p>
+                <p><strong>空格键 (Space)</strong>: 拔剑刺击 (近战伤害: 2滴血)</p>
+                <p><strong>数字键 1</strong>: 火炮射击 (远程伤害: 1滴血)</p>
+                <p><strong>字母键 X</strong>: 冲刺重拳 (大招突进, 伤害: 5滴血)</p>
+            </div>
+            <div class="instruction-block">
+                <h3>🟪 天灾 (2P/沙包) 操作说明</h3>
+                <p><strong>A D</strong>: 左右移动 | <strong>W</strong>: 跳跃</p>
+                <p><strong>F</strong>: 攻击</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "name": "3d-zombie-shooter",
+  "version": "1.0.0",
+  "description": "3D Voxel Zombie Shooter Multiplayer",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
