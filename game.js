@@ -326,8 +326,11 @@ function initPeer(customFallbackId) {
 
     let idToUse = customFallbackId || savedId;
     peer = new Peer(idToUse, {
-        debug: 2,
-        secure: true
+        host: '0.peerjs.com',
+        port: 443,
+        path: '/',
+        secure: true,
+        debug: 2
     });
     
     peer.on('open', id => {
