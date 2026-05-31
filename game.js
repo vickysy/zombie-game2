@@ -397,6 +397,7 @@ function setupConnection(conn) {
         mesh: compMesh,
         parts: humanoid,
         nametag: nametag,
+        peerId: conn.peer,
         lastPos: new THREE.Vector3(),
         walkTime: 0
     };
@@ -426,7 +427,7 @@ function setupConnection(conn) {
                 companions[conn.peer].mesh.rotation.set(data.rx, data.ry, data.rz);
                 
                 // Update nametag position
-                updateNametagPosition(companions[conn.peer].mesh, companions[conn.peer].nametag);
+                updateNametagPosition(companions[conn.peer].mesh, companions[conn.peer].nametag, conn.peer);
             }
         }
         else if (data.type === 'shoot') {
@@ -492,11 +493,14 @@ function setupConnection(conn) {
     });
 }
 
-function updateNametagPosition(mesh, nametag) {
-    if (!isGameStarted) return;
+function updateNametagPosition(mesh, nametag, peerId) {
+    if (!isGameStarted) {
+        nametag.style.display = 'none';
+        return;
+    }
     
     const pos = mesh.position.clone();
-    pos.y += BLOCK_SIZE * 1.2; // Above head
+    pos.y += BLOCK_SIZE * 1.5; // Raised a bit higher
     
     // Project to 2D screen space
     pos.project(camera);
@@ -513,6 +517,9 @@ function updateNametagPosition(mesh, nametag) {
     nametag.style.display = 'block';
     nametag.style.left = `${x}px`;
     nametag.style.top = `${y}px`;
+    
+    // Ensure the text shows both the name and the ID
+    nametag.innerHTML = `同伴: <span style="color: #ffaa00;">${peerId}</span>`;
 }
 
 function init() {
@@ -1723,7 +1730,7 @@ function animate() {
             }
             
             if (comp.nametag) {
-                updateNametagPosition(comp.mesh, comp.nametag);
+                updateNametagPosition(comp.mesh, comp.nametag, comp.peerId);
             }
         });
     }
