@@ -1441,7 +1441,10 @@ function animate() {
     requestAnimationFrame(animate);
 
     const time = performance.now();
-    const delta = (time - prevTime) / 1000;
+    let delta = (time - prevTime) / 1000;
+    
+    // Cap delta time to prevent physics explosions and moving through walls when switching tabs
+    if (delta > 0.1) delta = 0.1;
 
     if (isGameStarted && controls.isLocked === true) {
             // Player Movement
