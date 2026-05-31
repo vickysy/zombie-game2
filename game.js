@@ -490,7 +490,8 @@ function setupConnection(conn) {
         }
         else if (data.type === 'pos') {
             if (companions[conn.peer]) {
-                companions[conn.peer].mesh.position.set(data.x, data.y, data.z);
+                // subtract camera height so the model's feet touch the ground
+                companions[conn.peer].mesh.position.set(data.x, data.y - BLOCK_SIZE * 0.8, data.z);
                 companions[conn.peer].mesh.rotation.set(data.rx, data.ry, data.rz);
                 
                 // Update nametag position
