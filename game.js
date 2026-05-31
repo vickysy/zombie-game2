@@ -313,13 +313,30 @@ function startGame(mode) {
         // If host, tell clients to start and send map
         if (isHost && connections.length > 0) {
             connections.forEach(conn => {
-                conn.send({
-                    type: 'start_game',
-                    mode: gameMode,
-                    mapGrid: mapGrid,
-                    fixedSpawnPos: fixedSpawnPos
-                });
+                if (conn.open) {
+                    conn.send({
+                        type: 'start_game',
+                        mode: gameMode,
+                        mapGrid: mapGrid,
+                        fixedSpawnPos: fixedSpawnPos
+                    });
+                }
             });
+            
+            // Force a quick sync right after starting so the client sees the host's exact spawn point
+            setTimeout(() => {
+                const p = controls.getObject().position;
+                const r = camera.rotation;
+                connections.forEach(conn => {
+                    if (conn.open) {
+                        conn.send({
+                            type: 'pos',
+                            x: p.x, y: p.y, z: p.z,
+                            rx: r.x, ry: r.y, rz: r.z
+                        });
+                    }
+                });
+            }, 100);
         }
         
         controls.lock(); // Host or singleplayer locks immediately
@@ -421,6 +438,19 @@ function setupConnection(conn) {
         walkTime: 0
     };
 
+    conn.on('open', () => {
+        // Once the connection is fully open, force an initial position sync immediately
+        if (isGameStarted && controls && controls.getObject()) {
+            const p = controls.getObject().position;
+            const r = camera.rotation;
+            conn.send({
+                type: 'pos',
+                x: p.x, y: p.y, z: p.z,
+                rx: r.x, ry: r.y, rz: r.z
+            });
+        }
+    });
+
     conn.on('data', data => {
         if (data.type === 'start_game') {
             // Received from host
@@ -441,6 +471,20 @@ function setupConnection(conn) {
                 document.getElementById('client-wait-text').classList.remove('hidden'); // Reset for next time
                 startGame(data.mode);
                 startRound(); // Client also needs to initialize round logic
+                
+                // Delay sending position until controls are fully initialized and camera is ready
+                setTimeout(() => {
+                    if (conn.open) {
+                        const p = controls.getObject().position;
+                        const r = camera.rotation;
+                        conn.send({
+                            type: 'pos',
+                            x: p.x, y: p.y, z: p.z,
+                            rx: r.x, ry: r.y, rz: r.z
+                        });
+                    }
+                }, 500);
+
                 controls.lock(); // Ensure lock is called directly from button click
             };
         }
@@ -1705,19 +1749,21 @@ function animate() {
             });
         }
         
-        // PeerJS broadcast pos & enemies (Throttled to ~15 FPS to prevent network freeze)
+        // PeerJS broadcast pos & enemies (Throttled to ~30 FPS to balance smoothness and network)
         if (peer && connections.length > 0) {
-            if (time - lastSyncTime > 66) { // 1000ms / 15 = 66ms
+            if (time - lastSyncTime > 33) { // 1000ms / 30 = ~33ms
                 const p = controls.getObject().position;
                 const r = camera.rotation;
                 
-                // Broadcast self position
+                // Broadcast self position to ALL connected peers
                 connections.forEach(conn => {
-                    conn.send({
-                        type: 'pos',
-                        x: p.x, y: p.y, z: p.z,
-                        rx: r.x, ry: r.y, rz: r.z
-                    });
+                    if (conn.open) { // Ensure connection is actually open
+                        conn.send({
+                            type: 'pos',
+                            x: p.x, y: p.y, z: p.z,
+                            rx: r.x, ry: r.y, rz: r.z
+                        });
+                    }
                 });
                 
                 // If Host, broadcast enemy states
@@ -1726,7 +1772,11 @@ function animate() {
                         id: e.id, x: e.mesh.position.x, y: e.mesh.position.y, z: e.mesh.position.z, 
                         hp: e.hp, isFriendly: e.isFriendly, type: e.type
                     }));
-                    connections.forEach(conn => conn.send({ type: 'enemies_sync', enemies: syncData }));
+                    connections.forEach(conn => {
+                        if (conn.open) {
+                            conn.send({ type: 'enemies_sync', enemies: syncData });
+                        }
+                    });
                 }
                 
                 lastSyncTime = time;
