@@ -272,13 +272,8 @@ function startGame(mode) {
     
     uiContainer.classList.remove('hidden');
 
-    if (mode === 'zombies' || mode === 'multiplayer_zombies') {
-        maxHp = 100;
-        hp = 100;
-    } else if (mode === 'bots' || mode === 'multiplayer_team') {
-        maxHp = 2; // Player dies in 2 hits
-        hp = 2;
-    }
+    maxHp = 10;
+    hp = 10;
     
     uiHp.innerText = hp;
     
@@ -757,14 +752,13 @@ function getSafeSpawnPos() {
 }
 
 function startRound() {
-    zombiesAlive = 1; // Only 1 alive at a time initially
+    zombiesAlive = 0; // Wait 10 seconds before spawning
     zombiesKilled = 0;
     uiZombies.innerText = zombiesKilled;
     uiRound.innerText = round;
 
-    // Start with 1 enemy
-    spawnEnemy();
-    lastZombieSpawnTime = performance.now();
+    // Set spawn time 4 seconds in the future, so (time - lastZombieSpawnTime > 6000) takes 10s
+    lastZombieSpawnTime = performance.now() + 4000;
 }
 
 function spawnEnemy() {
@@ -1027,8 +1021,8 @@ function createGun(type) {
 
 function unlockWeapon(type) {
     if (type === 'heal') {
-        hp = Math.min(hp + 100, maxHp);
-        uiHp.innerText = hp;
+        hp = maxHp; // Full heal to 10
+        uiHp.innerText = Math.ceil(hp);
     } else if (type === 'range') {
         let increase = rangeUpgradeCount === 0 ? 5 : 3;
         sniperRangeBase += increase;
@@ -1443,8 +1437,8 @@ function animate() {
                 const pPos = controls.getObject().position;
                 if (b.mesh.position.distanceTo(pPos) < 1.5) {
                     hitPlayer = true;
-                    hp -= 1; // Player takes 1 damage per hit (2 hits to kill if 2 HP)
-                    uiHp.innerText = hp;
+                    hp -= 0.5; // 2 hits = 1 HP damage
+                    uiHp.innerText = Math.ceil(hp);
                     playHitSound();
                     
                     document.getElementById('blocker').style.backgroundColor = 'rgba(255, 0, 0, 0.3)';
@@ -1640,8 +1634,8 @@ function animate() {
                         }
                     } else {
                         if (time - e.lastAttackTime > 1000) { 
-                            hp -= 5;
-                            uiHp.innerText = hp;
+                            hp -= 0.5; // 2 hits = 1 HP damage
+                            uiHp.innerText = Math.ceil(hp);
                             e.lastAttackTime = time;
                             
                             document.getElementById('blocker').style.backgroundColor = 'rgba(255, 0, 0, 0.3)';
