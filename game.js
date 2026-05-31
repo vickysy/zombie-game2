@@ -324,7 +324,10 @@ function initPeer(customFallbackId) {
     }
 
     let idToUse = customFallbackId || savedId;
-    peer = new Peer(idToUse);
+    peer = new Peer(idToUse, {
+        debug: 2,
+        secure: true
+    });
     
     peer.on('open', id => {
         document.getElementById('my-peer-id').innerText = id;
