@@ -67,9 +67,15 @@
         <div id="lobby-client-view" class="hidden">
             <h2 style="color: #55ff55;">成功加入房间！</h2>
             <p style="font-size: 20px;">已连接到房主: <span id="lobby-host-id" style="color: #fff; font-weight: bold;"></span></p>
-            <p id="client-wait-text" style="font-size: 18px; color: #aaa; margin-top: 30px;">等待房主选择模式并开始游戏...</p>
-            <div class="menu-buttons">
-                <button id="btn-client-join-game" class="hidden" style="background-color: #ffaa00; color: #000; font-weight: bold; border-color: #fff;">房主已开始游戏，点击加入战场！</button>
+            <p id="client-wait-text" style="font-size: 18px; color: #aaa; margin-top: 30px;">等待房主选择地形和模式并开始游戏...</p>
+            <div id="client-join-options" class="hidden" style="margin-top: 20px;">
+                <h3 style="color: #ffaa00; margin-bottom: 15px;">房主已生成地图！是否加入？</h3>
+                <div class="menu-buttons">
+                    <button id="btn-client-join-game" style="background-color: #55ff55; color: #000; font-weight: bold;">加入</button>
+                    <button id="btn-client-decline-game" style="background-color: #ff5555; color: #fff; font-weight: bold;">不加入</button>
+                </div>
+            </div>
+            <div class="menu-buttons" id="client-back-container">
                 <button id="btn-back-lobby-client" class="back-btn">退出房间</button>
             </div>
         </div>

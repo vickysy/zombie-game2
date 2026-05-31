@@ -195,6 +195,21 @@ function setupMenus() {
             connections = [];
         }
     };
+
+    const btnDecline = document.getElementById('btn-client-decline-game');
+    if (btnDecline) {
+        btnDecline.onclick = () => {
+            if (peer) {
+                connections.forEach(conn => conn.close());
+                connections = [];
+            }
+            lobbyMenu.classList.add('hidden');
+            multiMenu.classList.remove('hidden');
+            document.getElementById('client-join-options').classList.add('hidden');
+            document.getElementById('client-wait-text').classList.remove('hidden');
+            document.getElementById('client-back-container').classList.remove('hidden');
+        };
+    }
     
     document.getElementById('btn-mode-multi-zombies').onclick = () => {
         startGame('multiplayer_zombies');
@@ -415,11 +430,15 @@ function setupConnection(conn) {
             
             // Show the Join button instead of starting directly
             document.getElementById('client-wait-text').classList.add('hidden');
-            const joinBtn = document.getElementById('btn-client-join-game');
-            joinBtn.classList.remove('hidden');
+            document.getElementById('client-back-container').classList.add('hidden');
+            const joinOptions = document.getElementById('client-join-options');
+            joinOptions.classList.remove('hidden');
             
+            const joinBtn = document.getElementById('btn-client-join-game');
             joinBtn.onclick = () => {
-                joinBtn.classList.add('hidden');
+                joinOptions.classList.add('hidden');
+                document.getElementById('client-back-container').classList.remove('hidden');
+                document.getElementById('client-wait-text').classList.remove('hidden'); // Reset for next time
                 startGame(data.mode);
                 startRound(); // Client also needs to initialize round logic
                 controls.lock(); // Ensure lock is called directly from button click
@@ -493,6 +512,9 @@ function setupConnection(conn) {
         if (isHost) {
             connections = connections.filter(c => c !== conn);
             updateLobbyPlayers();
+        }
+        if (isGameStarted) {
+            alert("网络断开: 同伴已离开游戏！");
         }
     });
 }
